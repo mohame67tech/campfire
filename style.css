@@ -153,24 +153,26 @@ html.has-flame-cursor, html.has-flame-cursor * { cursor: none !important; }
 .flame-cursor {
   position: fixed;
   top: 0; left: 0;
-  width: 26px; height: 26px;
+  width: 19px; height: 19px;   /* the size of an ordinary cursor */
   pointer-events: none;
   z-index: 9999;
   opacity: 0;                  /* invisible until the hand first moves */
   will-change: transform;
-  transition: transform 0.09s linear;   /* smooths the steps between pointer events */
+  /* no transition here: the flame steps with the hand, never trails it */
 }
 .flame-cursor.lit { opacity: 1; }
 
 .flame-inner {
   position: absolute; inset: 0;
   transform-origin: 50% 92%;   /* the flare grows from the flame's base */
-  transition: transform 0.18s ease;
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
-.flame-cursor.hot .flame-inner { transform: scale(1.5); }
+/* Over anything clickable: grow a little, and turn semi-transparent
+   so the words underneath stay readable through the flame. */
+.flame-cursor.hot .flame-inner { transform: scale(1.22); opacity: 0.55; }
 
 .flame-glow {
-  position: absolute; inset: -16px;
+  position: absolute; inset: -11px;
   background: radial-gradient(circle, rgba(255, 140, 66, 0.5) 0%, transparent 65%);
   border-radius: 50%;
   animation: glowPulse 0.9s ease-in-out infinite alternate;
