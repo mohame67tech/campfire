@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=8">
-  <link rel="stylesheet" href="room.css?v=6">
+  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="room.css?v=7">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
       <h1 class="page-title" id="room-name">A room by the fire</h1>
       <p class="dim">This fire burns out in <strong id="countdown">08:00:00</strong></p>
       <div class="room-tools">
-        <span class="code-chip hidden" id="code-chip">Room code&nbsp;<strong id="room-code"></strong></span>
+        <span class="code-chip hidden" id="code-chip" title="Tap to copy the room code">Room code&nbsp;<strong id="room-code"></strong></span>
         <button type="button" class="btn btn-quiet btn-small" id="invite-btn">Copy invite link</button>
         <button type="button" class="btn btn-quiet btn-small hidden" id="copy-creator-btn">Copy creator link</button>
       </div>
@@ -27,7 +27,7 @@
       </div>
 
       <form id="post-form" class="panel">
-        <label>
+        <label id="name-label">
           Your name (optional — blank means Anonymous)
           <input type="text" id="my-name" maxlength="40" placeholder="Anonymous">
         </label>
@@ -90,6 +90,10 @@
     if (roomCode) {
       document.getElementById('room-code').textContent = roomCode;
       document.getElementById('code-chip').classList.remove('hidden');
+      // The code itself is the copy button: tap it, the number is yours.
+      document.getElementById('code-chip').addEventListener('click', function () {
+        copyToClipboard(roomCode, document.getElementById('room-code'), 'Copy failed');
+      });
     }
 
     // ---------- Preview expiry: 8 hours from first opening, kept in this browser ----------
@@ -132,9 +136,9 @@
     }
     function lockIdentity() {
       if (saved.myName === undefined) return;
-      myNameEl.value = saved.myName || '';
-      myNameEl.placeholder = saved.myName || ('Anonymous ' + saved.myAnon);
-      myNameEl.disabled = true;
+      // Once the name is set it cannot change — so the field itself leaves.
+      // What stays is the one line that matters: who you are by this fire.
+      document.getElementById('name-label').classList.add('hidden');
       identityNote.textContent = 'By this fire, you are ' + myDisplayName() + '.';
       identityNote.classList.remove('hidden');
     }

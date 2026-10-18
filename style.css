@@ -148,6 +148,7 @@ footer {
 }
 
 /* ---------- Join by code (home page) ---------- */
+.copyable { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
 .hidden { display: none; }
 
 .join-box {

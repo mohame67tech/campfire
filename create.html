@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Light a room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=8">
-  <link rel="stylesheet" href="room.css?v=6">
+  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="room.css?v=7">
 </head>
 <body>
 
@@ -39,8 +39,8 @@
     <div id="created" class="panel hidden">
       <h3>Your fire is lit.</h3>
       <p><a class="btn" id="enter-room" href="#">Enter your room</a></p>
-      <p class="dim">Room code: <strong id="room-code"></strong> — guests can
-        join with this code from the Campfire home page.</p>
+      <p class="dim">Room code: <strong id="room-code" class="copyable" title="Tap to copy the room code"></strong> — guests can
+        join with this code from the Campfire home page. Tap the code to copy it.</p>
       <p class="dim">Invite link — for your guests. It opens the room, and
         nothing more. No raw link to read or copy by hand; the button
         carries it:</p>
@@ -99,6 +99,11 @@
       document.getElementById('enter-room').href = creatorUrl;
       document.getElementById('room-code').textContent = code;
       document.getElementById('created').classList.remove('hidden');
+
+      // The code itself is the copy button: tap it, the number is yours.
+      document.getElementById('room-code').addEventListener('click', function () {
+        copyText(code, this);
+      });
 
       // Remember this code in this browser, so the home page's join box can
       // find the room. (Cross-browser code lookup arrives with the server.)

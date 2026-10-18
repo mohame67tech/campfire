@@ -91,6 +91,7 @@ main { animation: rise 0.4s ease both; }
   margin: 0.75rem 0 0.5rem;
 }
 .code-chip {
+  cursor: pointer;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 0.85rem;
   color: var(--ember-soft);
