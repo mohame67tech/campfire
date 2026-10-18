@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Light a room — The Campfire</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="room.css">
+</head>
+<body>
+
+  <main class="narrow">
+    <p class="kicker">THE CAMPFIRE</p>
+    <h1 class="page-title">Light a room</h1>
+    <p class="dim">Your room lives for 24 hours. Whoever has the link is in —
+      no sign-up, no accounts. You will get two things: the <strong>link</strong>
+      to share, and a <strong>creator key</strong> that is yours alone. The key
+      is the match that can burn the room early — keep it safe.</p>
+
+    <form id="create-form" class="panel">
+      <label>
+        Room name (optional)
+        <input type="text" id="room-name" maxlength="60" placeholder="e.g. Aisha's Wedding">
+      </label>
+
+      <label>
+        Kind of fire
+        <select id="room-kind">
+          <option value="Event Campfire">Event Campfire — photos &amp; messages for a gathering</option>
+          <option value="The Lobby">The Lobby — gamers dropping clips &amp; files</option>
+        </select>
+      </label>
+
+      <button type="submit" class="btn">Light this room</button>
+    </form>
+
+    <div id="created" class="panel hidden">
+      <h3>Your fire is lit.</h3>
+      <p class="dim">Share this link:</p>
+      <p><a id="room-link" href="#"></a></p>
+      <p class="dim">Your creator key (also hidden inside your link, after the #):</p>
+      <p><code id="creator-key"></code></p>
+      <p class="dim">Anyone with the key can burn the room. Treat it like a house key.</p>
+    </div>
+
+    <p class="fineprint">Preview build — rooms are created in this browser
+      until the server piece lands.</p>
+  </main>
+
+  <script src="room.js"></script>
+  <script>
+    // Create flow: build an unguessable room address + a creator key.
+    document.getElementById('create-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var slug = makeSlug(12);        // the room's address — long enough that nobody can guess it
+      var key = makeSlug(20);         // the creator key — longer, because it carries burn rights
+      var name = document.getElementById('room-name').value.trim();
+      var kind = document.getElementById('room-kind').value;
+
+      // The key travels in the # fragment of the link. Browsers never send
+      // the # part to a server, so the key stays between you and your browser.
+      var url = 'room.html?r=' + slug +
+                '&n=' + encodeURIComponent(name) +
+                '&k=' + encodeURIComponent(kind) +
+                '#key=' + key;
+
+      var link = document.getElementById('room-link');
+      link.href = url;
+      link.textContent = url;
+      document.getElementById('creator-key').textContent = key;
+      document.getElementById('created').classList.remove('hidden');
+    });
+  </script>
+
+</body>
+</html>

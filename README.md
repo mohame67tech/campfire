@@ -21,7 +21,11 @@ gather round, talk and swap files. When the fire dies, it's gone.
   sharing, tested end to end.
 - **Phase 2 (in progress):** this repo — the real code version.
   - [x] Landing page (`index.html` + `style.css`)
-  - [ ] Room system (create / join by link / post / files)
+  - [x] Create-a-room page + room screen — front-end preview (`create.html`,
+        `room.html`, `room.js`, `room.css`): unguessable room links, creator
+        key in the link's # fragment, 24-hour countdown, burn-the-room,
+        "this fire has gone out" screen. Messages are browser-local for now.
+  - [ ] Room server — makes messages and files travel between visitors
   - [ ] 24-hour expiry + burn-the-room
   - [ ] The two standing rooms
   - [ ] Feedback page

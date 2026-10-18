@@ -1,0 +1,70 @@
+/* The Campfire — room pages (create + room screens) */
+
+.narrow { max-width: 640px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+.page-title { font-size: 2.2rem; margin: 0.75rem 0 1rem; }
+.dim { color: var(--text-dim); }
+.hidden { display: none; }
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.4rem;
+  margin: 1.5rem 0;
+}
+
+.panel label {
+  display: block;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 1.1rem;
+}
+
+.panel input[type="text"],
+.panel select,
+.panel textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.panel input[type="file"] { display: block; margin-top: 0.4rem; color: var(--text-dim); }
+.panel code { color: var(--ember-soft); word-break: break-all; }
+.panel a { color: var(--ember-soft); word-break: break-all; }
+
+.messages { margin: 1.5rem 0; }
+.messages .empty { color: var(--text-dim); font-style: italic; }
+
+.msg {
+  border-top: 1px solid var(--line);
+  padding: 0.9rem 0.2rem;
+}
+.msg-head {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.8rem;
+  color: var(--ember-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.msg-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); font-size: 1.1rem; line-height: 1;
+}
+.msg-file { color: var(--text-dim); font-size: 0.9rem; }
+
+.fineprint {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin-top: 2rem;
+}

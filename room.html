@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A room — The Campfire</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="room.css">
+</head>
+<body>
+
+  <main class="narrow">
+
+    <!-- ============ THE ROOM ============ -->
+    <div id="room-view">
+      <p class="kicker" id="room-kind">THE CAMPFIRE</p>
+      <h1 class="page-title" id="room-name">A room by the fire</h1>
+      <p class="dim">This fire burns out in <strong id="countdown">24:00:00</strong></p>
+
+      <div id="messages" class="messages">
+        <p class="empty" id="empty-note">This fire is lit. Be the first to speak.</p>
+      </div>
+
+      <form id="post-form" class="panel">
+        <label>
+          Your name (optional — blank means Anonymous)
+          <input type="text" id="my-name" maxlength="40" placeholder="Anonymous">
+        </label>
+        <label>
+          Message
+          <textarea id="my-text" rows="2" maxlength="2000" placeholder="Say something warm…"></textarea>
+        </label>
+        <label class="file-label">
+          Attach a file (up to 15 MB)
+          <input type="file" id="my-file">
+        </label>
+        <p class="dim" id="file-note"></p>
+        <button type="submit" class="btn">Post</button>
+        <button type="button" class="btn btn-quiet hidden" id="burn-btn">Burn this room</button>
+      </form>
+
+      <p class="fineprint">Preview build — in this version, messages live only
+        in this browser. The server piece makes them travel between visitors.</p>
+    </div>
+
+    <!-- ============ THE FIRE HAS GONE OUT ============ -->
+    <div id="gone-view" class="hidden">
+      <h1 class="page-title">This fire has gone out.</h1>
+      <p class="dim">The room burned its 24 hours, or its creator burned it early.
+        Either way, the talk and the files went with the smoke — that was the deal.</p>
+      <p><a class="btn" href="index.html">Back to the Campfire</a></p>
+    </div>
+
+  </main>
+
+  <script src="room.js"></script>
+  <script>
+    // ---------- Read the room's address ----------
+    var params = new URLSearchParams(window.location.search);
+    var roomId = params.get('r') || 'unknown';
+    var roomName = params.get('n') || '';
+    var roomKind = params.get('k') || 'The Campfire';
+    // The creator key rides in the # fragment (never sent to any server).
+    var creatorKey = (window.location.hash.match(/key=([A-Za-z0-9]+)/) || [])[1] || null;
+
+    if (roomName) document.getElementById('room-name').textContent = roomName;
+    document.getElementById('room-kind').textContent = roomKind.toUpperCase();
+
+    // ---------- Preview expiry: 24 hours from first opening, kept in this browser ----------
+    var storeKey = 'campfire-room-' + roomId;
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch (e) { saved = {}; }
+    if (!saved.litAt) { saved.litAt = Date.now(); saved.messages = []; save(); }
+    function save() { localStorage.setItem(storeKey, JSON.stringify(saved)); }
+
+    var burnsAt = saved.litAt + 24 * 60 * 60 * 1000;
+    function tick() {
+      var left = burnsAt - Date.now();
+      if (left <= 0) { showGone(); return; }
+      var h = Math.floor(left / 3600000), m = Math.floor(left / 60000) % 60, s = Math.floor(left / 1000) % 60;
+      document.getElementById('countdown').textContent =
+        [h, m, s].map(function (n) { return String(n).padStart(2, '0'); }).join(':');
+    }
+    setInterval(tick, 1000); tick();
+
+    // ---------- Messages (preview: stored in this browser) ----------
+    var messagesEl = document.getElementById('messages');
+    var myNameEl = document.getElementById('my-name');
+    myNameEl.value = localStorage.getItem('campfire-my-name') || '';
+
+    function render() {
+      messagesEl.innerHTML = '';
+      if (!saved.messages.length) {
+        messagesEl.innerHTML = '<p class="empty">This fire is lit. Be the first to speak.</p>';
+        return;
+      }
+      saved.messages.forEach(function (msg, i) {
+        var div = document.createElement('div');
+        div.className = 'msg';
+        var head = document.createElement('p');
+        head.className = 'msg-head';
+        head.textContent = msg.name + ' · ' + new Date(msg.at).toLocaleTimeString();
+        var del = document.createElement('button');
+        del.textContent = '×';
+        del.className = 'msg-del';
+        del.title = 'Delete this message';
+        del.addEventListener('click', function () {
+          saved.messages.splice(i, 1); save(); render();
+        });
+        head.appendChild(del);
+        div.appendChild(head);
+        if (msg.text) {
+          var body = document.createElement('p');
+          body.textContent = msg.text;   // textContent = the message can never become code (no XSS)
+          div.appendChild(body);
+        }
+        if (msg.fileName) {
+          var f = document.createElement('p');
+          f.className = 'msg-file';
+          f.textContent = '📎 ' + msg.fileName;
+          div.appendChild(f);
+        }
+        messagesEl.appendChild(div);
+      });
+    }
+    render();
+
+    document.getElementById('post-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = document.getElementById('my-text').value.trim();
+      var file = document.getElementById('my-file').files[0];
+      if (!text && !file) return;
+      if (file && file.size > 15 * 1024 * 1024) {
+        document.getElementById('file-note').textContent = 'That file is over 15 MB — too big for this fire.';
+        return;
+      }
+      localStorage.setItem('campfire-my-name', myNameEl.value.trim());
+      saved.messages.push({
+        name: myNameEl.value.trim() || 'Anonymous',
+        text: text,
+        fileName: file ? file.name : null,
+        at: Date.now()
+      });
+      save(); render();
+      document.getElementById('my-text').value = '';
+      document.getElementById('my-file').value = '';
+      document.getElementById('file-note').textContent = '';
+    });
+
+    // ---------- Burn (creator only: the key must be in the link) ----------
+    if (creatorKey) {
+      var burnBtn = document.getElementById('burn-btn');
+      burnBtn.classList.remove('hidden');
+      burnBtn.addEventListener('click', function () {
+        localStorage.removeItem(storeKey);
+        showGone();
+      });
+    }
+
+    function showGone() {
+      document.getElementById('room-view').classList.add('hidden');
+      document.getElementById('gone-view').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>
