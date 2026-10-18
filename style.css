@@ -10,6 +10,9 @@
   --text: #f3e9dc;        /* warm off-white */
   --text-dim: #b8a893;
   --line: #3a2a1a;
+  /* The display voice: a warm, soft serif with real character (Fraunces).
+     If the font ever fails to load, Georgia carries the part gracefully. */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -17,7 +20,10 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
+  /* A faint firelight falls from the top of every page. */
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -5%, rgba(255, 140, 66, 0.09), transparent 60%),
+    var(--bg);
   color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.6;
@@ -49,6 +55,8 @@ a { transition: color 0.2s ease; }
 }
 
 .wordmark {
+  font-family: var(--font-display);
+  font-weight: 900;
   font-size: clamp(3.2rem, 13vw, 9rem);
   letter-spacing: 0.06em;
   line-height: 1.05;
@@ -98,6 +106,8 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 1.5rem; }
 section { padding: 3.5rem 0 1rem; }
 
 h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 2.1rem;
   margin-bottom: 1.75rem;
   color: var(--text);
@@ -111,10 +121,15 @@ h2 {
 }
 
 .card {
-  background: var(--bg-card);
+  background: linear-gradient(180deg, #251a10, var(--bg-card));
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 1.6rem 1.4rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+@media (hover: hover) {
+  .card:hover { transform: translateY(-3px); border-color: rgba(255, 140, 66, 0.45); }
 }
 
 .glyph {
@@ -137,8 +152,10 @@ h2 {
 }
 
 .step-num {
+  font-family: var(--font-display);
   font-size: 1.6rem;
   color: var(--ember);
+  background: rgba(255, 140, 66, 0.08);
   border: 1px solid var(--line);
   border-radius: 50%;
   width: 3rem; height: 3rem;
@@ -159,6 +176,9 @@ footer {
   color: var(--text-dim);
   font-size: 0.9rem;
   padding: 4rem 1.5rem 3rem;
+  background: #120d08;
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
 }
 
 /* ---------- Join by code (home page) ---------- */
@@ -245,3 +265,56 @@ html.has-flame-cursor, html.has-flame-cursor * { cursor: none !important; }
 /* Over something clickable: the fire finds fuel. */
 .flame-cursor.hot .flame-core { animation-duration: 0.16s; }
 .flame-cursor.hot .flame-glow { animation-duration: 0.45s; }
+
+/* ---------- The fire itself (hero scene) ----------
+   A drawn campfire under the wordmark: layered flames that sway,
+   logs in front, and embers that rise and die. Pure CSS + inline SVG,
+   transform/opacity only — decoration that can never jank the page. */
+.fire-scene {
+  position: relative;
+  width: min(400px, 82vw);
+  margin: 0.25rem auto 0;
+}
+.fire-art { width: 100%; height: auto; display: block; }
+
+.flame-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway 2.6s ease-in-out infinite alternate;
+}
+@keyframes sway {
+  from { transform: rotate(-1.6deg) scaleY(1); }
+  to   { transform: rotate(1.8deg) scaleY(1.045); }
+}
+
+.ember {
+  position: absolute;
+  bottom: 34%;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #ffb37a;
+  box-shadow: 0 0 8px 2px rgba(255, 140, 66, 0.55);
+  opacity: 0;
+  animation: rise-ember linear infinite;
+}
+.ember.e1 { left: 44%; animation-duration: 5.5s; animation-delay: 0s; }
+.ember.e2 { left: 52%; width: 3.5px; height: 3.5px; animation-duration: 7s; animation-delay: 1.2s; }
+.ember.e3 { left: 48%; animation-duration: 6.2s; animation-delay: 2.4s; }
+.ember.e4 { left: 57%; animation-duration: 8s; animation-delay: 0.6s; }
+.ember.e5 { left: 40%; width: 6px; height: 6px; animation-duration: 7.4s; animation-delay: 3.1s; }
+.ember.e6 { left: 50%; width: 3.5px; height: 3.5px; animation-duration: 5.8s; animation-delay: 4s; }
+.ember.e7 { left: 54%; animation-duration: 6.6s; animation-delay: 1.8s; }
+.ember.e8 { left: 46%; animation-duration: 7.8s; animation-delay: 2.9s; }
+
+@keyframes rise-ember {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: 0.95; }
+  55%  { transform: translate3d(6px, -64px, 0); }
+  100% { transform: translate3d(-4px, -128px, 0); opacity: 0; }
+}
+
+/* Calm-motion visitors get a still fire — lit, but not dancing. */
+@media (prefers-reduced-motion: reduce) {
+  .flame-sway { animation: none; }
+  .ember { display: none; }
+}

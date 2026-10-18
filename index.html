@@ -11,7 +11,10 @@
   <meta property="og:description" content="No sign-up. No accounts. Share a link, gather round, talk and swap files. When the fire dies, it's gone.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -19,6 +22,40 @@
   <header class="hero">
     <p class="kicker">NO SIGN-UP · NO ACCOUNTS · JUST A LINK</p>
     <h1 class="wordmark">CAMPFIRE</h1>
+
+    <!-- The fire itself: a drawn campfire, flames swaying, embers rising.
+         Pure decoration (aria-hidden) — the site's hearth, not a control. -->
+    <div class="fire-scene" aria-hidden="true">
+      <svg class="fire-art" viewBox="0 0 220 150">
+        <defs>
+          <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff8c42" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#ff8c42" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#ff5e3a"/>
+            <stop offset="55%" stop-color="#ff8c42"/>
+            <stop offset="100%" stop-color="#ffc46b"/>
+          </linearGradient>
+          <linearGradient id="flameMid" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#ff8c42"/>
+            <stop offset="100%" stop-color="#ffe9a8"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="110" cy="130" rx="95" ry="14" fill="url(#glowGrad)"/>
+        <g class="flame-sway">
+          <path d="M110 16c14 26 32 42 32 72a32 32 0 0 1-64 0c0-30 18-46 32-72z" fill="url(#flameOuter)"/>
+          <path d="M110 52c10 16 20 26 20 42a20 20 0 0 1-40 0c0-16 10-26 20-42z" fill="url(#flameMid)"/>
+          <path d="M110 84c6 9 11 15 11 23a11 11 0 0 1-22 0c0-8 5-14 11-23z" fill="#fff3c4"/>
+        </g>
+        <rect x="52" y="118" width="86" height="13" rx="6.5" transform="rotate(9 95 124)" fill="#6b4226"/>
+        <rect x="82" y="118" width="86" height="13" rx="6.5" transform="rotate(-9 125 124)" fill="#7d4e2c"/>
+      </svg>
+      <span class="ember e1"></span><span class="ember e2"></span>
+      <span class="ember e3"></span><span class="ember e4"></span>
+      <span class="ember e5"></span><span class="ember e6"></span>
+      <span class="ember e7"></span><span class="ember e8"></span>
+    </div>
     <p class="promise">
       A chat room that asks for nothing.<br>
       <span class="promise-main">Share the link, gather round, talk and swap files.</span><br>
