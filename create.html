@@ -36,11 +36,16 @@
 
     <div id="created" class="panel hidden">
       <h3>Your fire is lit.</h3>
-      <p class="dim">Share this link:</p>
+      <p class="dim">Invite link — share this one with your guests. It opens
+        the room, and nothing more:</p>
       <p><a id="room-link" href="#"></a></p>
-      <p class="dim">Your creator key (also hidden inside your link, after the #):</p>
-      <p><code id="creator-key"></code></p>
-      <p class="dim">Anyone with the key can burn the room. Treat it like a house key.</p>
+      <p><button type="button" class="btn" id="copy-invite">Copy invite link</button></p>
+      <p class="dim">Your creator link — this one carries your creator key
+        (after the #) and can burn the room. Keep it only with you, like a
+        house key. Open the room through it whenever you want your Burn
+        button:</p>
+      <p><code id="creator-link"></code></p>
+      <p><button type="button" class="btn btn-quiet" id="copy-creator">Copy creator link</button></p>
     </div>
 
     <p class="fineprint">Preview build — rooms are created in this browser
@@ -57,19 +62,51 @@
       var name = document.getElementById('room-name').value.trim();
       var kind = document.getElementById('room-kind').value;
 
-      // The key travels in the # fragment of the link. Browsers never send
-      // the # part to a server, so the key stays between you and your browser.
-      var url = 'room.html?r=' + slug +
-                '&n=' + encodeURIComponent(name) +
-                '&k=' + encodeURIComponent(kind) +
-                '#key=' + key;
+      // Two links, made by the page so nobody ever edits a link by hand:
+      // the invite link (no key — safe to share with anyone) and the creator
+      // link (the key rides in the # fragment, which browsers never send to
+      // a server, so it stays between the creator and their browser).
+      var base = 'room.html?r=' + slug +
+                 '&n=' + encodeURIComponent(name) +
+                 '&k=' + encodeURIComponent(kind);
+      var guestUrl = base;
+      var creatorUrl = base + '#key=' + key;
 
       var link = document.getElementById('room-link');
-      link.href = url;
-      link.textContent = url;
-      document.getElementById('creator-key').textContent = key;
+      link.href = guestUrl;
+      link.textContent = guestUrl;
+      document.getElementById('creator-link').textContent = creatorUrl;
       document.getElementById('created').classList.remove('hidden');
+
+      document.getElementById('copy-invite').addEventListener('click', function () {
+        copyText(guestUrl, this);
+      });
+      document.getElementById('copy-creator').addEventListener('click', function () {
+        copyText(creatorUrl, this);
+      });
     });
+
+    // Copy text with a fallback for older browsers, and say so on the button.
+    function copyText(text, btn) {
+      function done() {
+        var old = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(function () { btn.textContent = old; }, 1600);
+      }
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); }
+        catch (e) { btn.textContent = 'Copy failed — long-press the link instead'; }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else { fallback(); }
+    }
   </script>
 
 </body>

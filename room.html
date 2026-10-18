@@ -16,6 +16,7 @@
       <p class="kicker" id="room-kind">THE CAMPFIRE</p>
       <h1 class="page-title" id="room-name">A room by the fire</h1>
       <p class="dim">This fire burns out in <strong id="countdown">08:00:00</strong></p>
+      <p><button type="button" class="btn btn-quiet" id="invite-btn">Copy invite link</button></p>
 
       <div id="messages" class="messages">
         <p class="empty" id="empty-note">This fire is lit. Be the first to speak.</p>
@@ -147,6 +148,33 @@
       document.getElementById('my-text').value = '';
       document.getElementById('my-file').value = '';
       document.getElementById('file-note').textContent = '';
+    });
+
+    // ---------- Invite (the link WITHOUT the creator key) ----------
+    // The invite is this room's address with the # fragment dropped, so a
+    // creator can invite straight from inside the room without ever
+    // exposing the key that rides in their own link.
+    document.getElementById('invite-btn').addEventListener('click', function () {
+      var invite = window.location.origin + window.location.pathname + window.location.search;
+      var btn = this;
+      function done() {
+        var old = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(function () { btn.textContent = old; }, 1600);
+      }
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = invite;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); }
+        catch (e) { btn.textContent = 'Copy failed — copy the address bar, minus the # part'; }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(invite).then(done, fallback);
+      } else { fallback(); }
     });
 
     // ---------- Burn (creator only: the key must be in the link) ----------
