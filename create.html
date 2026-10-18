@@ -45,9 +45,9 @@
         nothing more. No raw link to read or copy by hand; the button
         carries it:</p>
       <p><button type="button" class="btn" id="copy-invite">Copy invite link</button></p>
-      <p class="dim">Your creator link carries your creator key and can burn
-        the room. Keep it only with you, like a house key:</p>
-      <p><button type="button" class="btn btn-quiet" id="copy-creator">Copy creator link</button></p>
+      <p class="dim">Your creator key travels inside your Enter link. Once
+        you're inside the room, you'll find the button to copy your creator
+        link there — keep it only with you, like a house key.</p>
     </div>
 
     <p class="fineprint">Preview build — rooms are created in this browser
@@ -102,9 +102,6 @@
 
       document.getElementById('copy-invite').addEventListener('click', function () {
         copyText(guestUrl, this);
-      });
-      document.getElementById('copy-creator').addEventListener('click', function () {
-        copyText(creatorUrl, this);
       });
     });
 

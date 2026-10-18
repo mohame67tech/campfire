@@ -19,6 +19,7 @@
       <div class="room-tools">
         <span class="code-chip hidden" id="code-chip">Room code&nbsp;<strong id="room-code"></strong></span>
         <button type="button" class="btn btn-quiet btn-small" id="invite-btn">Copy invite link</button>
+        <button type="button" class="btn btn-quiet btn-small hidden" id="copy-creator-btn">Copy creator link</button>
       </div>
 
       <div id="messages" class="messages">
@@ -30,6 +31,7 @@
           Your name (optional — blank means Anonymous)
           <input type="text" id="my-name" maxlength="40" placeholder="Anonymous">
         </label>
+        <p class="dim hidden" id="identity-note"></p>
         <label>
           Message
           <textarea id="my-text" rows="2" maxlength="2000" placeholder="Say something warm…"></textarea>
@@ -97,10 +99,27 @@
     }
     setInterval(tick, 1000); tick();
 
-    // ---------- Messages (preview: stored in this browser) ----------
+    // ---------- Identity by this fire ----------
+    // Your first message sets who you are in this room: the name you typed,
+    // or an Anonymous number if you typed none (Anonymous 1, Anonymous 2,
+    // in the order anonymous voices first speak). After that it is locked
+    // in this browser — nobody gets to be five people by one fire.
     var messagesEl = document.getElementById('messages');
     var myNameEl = document.getElementById('my-name');
-    myNameEl.value = localStorage.getItem('campfire-my-name') || '';
+    var identityNote = document.getElementById('identity-note');
+
+    function myDisplayName() {
+      return saved.myName ? saved.myName : ('Anonymous ' + (saved.myAnon || 1));
+    }
+    function lockIdentity() {
+      if (saved.myName === undefined) return;
+      myNameEl.value = saved.myName || '';
+      myNameEl.placeholder = saved.myName || ('Anonymous ' + saved.myAnon);
+      myNameEl.disabled = true;
+      identityNote.textContent = 'By this fire, you are ' + myDisplayName() + '.';
+      identityNote.classList.remove('hidden');
+    }
+    lockIdentity();
 
     function render() {
       messagesEl.innerHTML = '';
@@ -148,9 +167,20 @@
         document.getElementById('file-note').textContent = 'That file is over 15 MB — too big for this fire.';
         return;
       }
-      localStorage.setItem('campfire-my-name', myNameEl.value.trim());
+      // First post sets the identity for this room (see above).
+      if (saved.myName === undefined) {
+        var typed = myNameEl.value.trim();
+        if (typed) { saved.myName = typed; }
+        else {
+          saved.myName = '';
+          saved.anonIssued = (saved.anonIssued || 0) + 1;
+          saved.myAnon = saved.anonIssued;
+        }
+        save();
+        lockIdentity();
+      }
       saved.messages.push({
-        name: myNameEl.value.trim() || 'Anonymous',
+        name: myDisplayName(),
         text: text,
         fileName: file ? file.name : null,
         at: Date.now()
@@ -163,13 +193,8 @@
       document.getElementById('file-note').textContent = '';
     });
 
-    // ---------- Invite (the link WITHOUT the creator key) ----------
-    // The invite is this room's address with the # fragment dropped, so a
-    // creator can invite straight from inside the room without ever
-    // exposing the key that rides in their own link.
-    document.getElementById('invite-btn').addEventListener('click', function () {
-      var invite = window.location.origin + window.location.pathname + window.location.search;
-      var btn = this;
+    // ---------- Copy buttons (invite + creator) ----------
+    function copyToClipboard(text, btn, failMsg) {
       function done() {
         var old = btn.textContent;
         btn.textContent = 'Copied ✓';
@@ -177,18 +202,36 @@
       }
       function fallback() {
         var ta = document.createElement('textarea');
-        ta.value = invite;
+        ta.value = text;
         ta.style.position = 'fixed'; ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
         try { document.execCommand('copy'); done(); }
-        catch (e) { btn.textContent = 'Copy failed — copy the address bar, minus the # part'; }
+        catch (e) { btn.textContent = failMsg; }
         document.body.removeChild(ta);
       }
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(invite).then(done, fallback);
+        navigator.clipboard.writeText(text).then(done, fallback);
       } else { fallback(); }
+    }
+
+    // The invite is this room's address with the # fragment dropped, so a
+    // creator can invite straight from inside the room without ever
+    // exposing the key that rides in their own link.
+    document.getElementById('invite-btn').addEventListener('click', function () {
+      var invite = window.location.origin + window.location.pathname + window.location.search;
+      copyToClipboard(invite, this, 'Copy failed — copy the address bar, minus the # part');
     });
+
+    // The creator link is this room's full address, key and all — its copy
+    // button is offered only in a browser that arrived holding the key.
+    if (creatorKey) {
+      var ccBtn = document.getElementById('copy-creator-btn');
+      ccBtn.classList.remove('hidden');
+      ccBtn.addEventListener('click', function () {
+        copyToClipboard(window.location.href, this, 'Copy failed — copy the address bar');
+      });
+    }
 
     // ---------- Burn (creator only: the key must be in the link) ----------
     if (creatorKey) {
