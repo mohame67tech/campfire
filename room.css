@@ -15,7 +15,7 @@ main { animation: rise 0.4s ease both; }
   main, .panel, .msg.fresh { animation: none; }
 }
 
-.page-title { font-size: 2.2rem; margin: 0.75rem 0 1rem; }
+.page-title { font-size: 2.4rem; margin: 0.75rem 0 1rem; }
 .dim { color: var(--text-dim); }
 .hidden { display: none; }
 
@@ -50,7 +50,30 @@ main { animation: rise 0.4s ease both; }
   font-family: inherit;
 }
 
-.panel input[type="file"] { display: block; margin-top: 0.4rem; color: var(--text-dim); }
+/* The file picker wears the theme: the native control hides (still
+   reachable by keyboard and screen readers), the label is the button. */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.panel label.file-label {
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  color: var(--ember-soft);
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-bottom: 1.1rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+@media (hover: hover) {
+  .panel label.file-label:hover { border-color: var(--ember); color: var(--text); }
+}
+.panel label.file-label:focus-within { border-color: var(--ember); color: var(--text); }
 .panel code { color: var(--ember-soft); word-break: break-all; }
 .panel a { color: var(--ember-soft); word-break: break-all; }
 
@@ -93,11 +116,46 @@ main { animation: rise 0.4s ease both; }
 .code-chip {
   cursor: pointer;
   font-family: Verdana, Geneva, sans-serif;
-  font-size: 0.85rem;
-  color: var(--ember-soft);
-  border: 1px solid var(--line);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--ember);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
 }
+.code-chip strong { color: var(--ember-soft); letter-spacing: 0.14em; }
 .btn-small { padding: 0.4rem 1rem; font-size: 0.8rem; }
 .room-exit { margin-top: 1rem; }
+
+/* ---------- Danger: Burn lives apart, and asks twice ---------- */
+.danger-zone {
+  margin-top: 2.25rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+.btn-danger {
+  background: transparent;
+  color: #ff8461;
+  border: 1px solid #7a3524;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .btn-danger:hover { background: rgba(255, 94, 58, 0.12); filter: none; }
+}
+.btn-danger.armed {
+  background: #b3371f;
+  color: #fff;
+  border-color: #b3371f;
+}
+
+/* ---------- Storage warning (shown once, only when saving fails) ---------- */
+.storage-note {
+  border: 1px solid var(--ember);
+  background: var(--bg-card);
+  color: var(--ember-soft);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}

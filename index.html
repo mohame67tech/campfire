@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Campfire — a chat room that asks for nothing</title>
   <meta name="description" content="No sign-up. No accounts. Share a link, gather round, talk and swap files. When the fire dies, it's gone.">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <meta name="theme-color" content="#17110c">
+  <meta property="og:title" content="The Campfire — a chat room that asks for nothing">
+  <meta property="og:description" content="No sign-up. No accounts. Share a link, gather round, talk and swap files. When the fire dies, it's gone.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -15,7 +21,7 @@
     <h1 class="wordmark">CAMPFIRE</h1>
     <p class="promise">
       A chat room that asks for nothing.<br>
-      Share the link, gather round, talk and swap files.<br>
+      <span class="promise-main">Share the link, gather round, talk and swap files.</span><br>
       When the fire dies, it's gone.
     </p>
     <p class="hero-actions">
@@ -41,7 +47,7 @@
       <div class="cards">
 
         <article class="card">
-          <div class="glyph">&#9650;</div>
+          <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c2 3.5 5 6 5 10a5 5 0 0 1-10 0c0-4 3-6.5 5-10z"/><path d="M12 21a2.4 2.4 0 0 1-2.4-2.4c0-1.6 1.2-2.7 2.4-4.1 1.2 1.4 2.4 2.5 2.4 4.1A2.4 2.4 0 0 1 12 21z"/></svg></div>
           <h3>Event Campfire</h3>
           <p>One link for the whole wedding, party, or reunion. Everyone drops
              their photos and messages into one warm pile — no app, no account,
@@ -49,21 +55,21 @@
         </article>
 
         <article class="card">
-          <div class="glyph">&#9679;</div>
+          <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.3C7 16.5 4 13.4 4 9.9 4 7.2 6 5 8.6 5c1.4 0 2.7.8 3.4 2 .7-1.2 2-2 3.4-2C18 5 20 7.2 20 9.9c0 3.5-3 6.6-8 10.4z"/></svg></div>
           <h3>Kindness Fire</h3>
           <p>Always burning. Leave something warm for the next stranger who
              wanders in — a kind word costs nothing and lands forever.</p>
         </article>
 
         <article class="card">
-          <div class="glyph">&#9670;</div>
+          <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></div>
           <h3>Quiet-Hand Room</h3>
           <p>Always burning. Ask the question you could never ask out loud.
              Nobody here knows your name, because nobody asked for it.</p>
         </article>
 
         <article class="card">
-          <div class="glyph">&#9632;</div>
+          <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M3 12h12"/><path d="M10.5 6l6 6-6 6"/></svg></div>
           <h3>The Lobby</h3>
           <p>Gamers passing through. Drop a clip, share a file, talk strategy,
              move on. Then the fire burns out — and the talk goes with it.</p>
@@ -106,8 +112,9 @@
     <!-- ============ FEEDBACK ============ -->
     <section class="feedback">
       <h2>Tell the builders</h2>
-      <p>Found something broken, or something missing? The builders read every
-         word. <em>(Feedback opens with the first rooms.)</em></p>
+      <p>Found something broken, or something missing? The builders read
+         every word — this button takes you straight to their board.</p>
+      <p class="feedback-action"><a class="btn btn-quiet" href="https://github.com/mohame67tech/campfire/issues" target="_blank" rel="noopener">Tell the builders</a></p>
     </section>
   </main>
 

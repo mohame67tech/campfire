@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="stylesheet" href="room.css?v=7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <meta name="theme-color" content="#17110c">
+  <meta name="description" content="A room by the fire. No sign-up, no accounts — whoever has the link is in, for 8 hours.">
+  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="room.css?v=8">
 </head>
 <body>
 
@@ -15,11 +18,12 @@
     <div id="room-view">
       <p class="kicker" id="room-kind">THE CAMPFIRE</p>
       <h1 class="page-title" id="room-name">A room by the fire</h1>
-      <p class="dim">This fire burns out in <strong id="countdown">08:00:00</strong></p>
+      <p class="dim">This fire burns out in <strong id="countdown">…</strong></p>
+      <p class="storage-note hidden" id="storage-note"></p>
       <div class="room-tools">
         <span class="code-chip hidden" id="code-chip" title="Tap to copy the room code">Room code&nbsp;<strong id="room-code"></strong></span>
         <button type="button" class="btn btn-quiet btn-small" id="invite-btn">Copy invite link</button>
-        <button type="button" class="btn btn-quiet btn-small hidden" id="copy-creator-btn">Copy creator link</button>
+        <button type="button" class="btn btn-quiet btn-small hidden" id="copy-creator-btn">🔒 Copy creator link</button>
       </div>
 
       <div id="messages" class="messages">
@@ -37,13 +41,18 @@
           <textarea id="my-text" rows="2" maxlength="2000" placeholder="Say something warm…"></textarea>
         </label>
         <label class="file-label">
-          Attach a file (up to 15 MB)
-          <input type="file" id="my-file">
+          📎 Attach a file (up to 15 MB)
+          <input type="file" id="my-file" class="visually-hidden">
         </label>
         <p class="dim" id="file-note"></p>
         <button type="submit" class="btn">Post</button>
-        <button type="button" class="btn btn-quiet hidden" id="burn-btn">Burn this room</button>
       </form>
+
+      <div class="danger-zone hidden" id="danger-zone">
+        <p class="dim">Creator's match. Burning ends this room for everyone
+          by this fire — and there is no way back from it.</p>
+        <button type="button" class="btn btn-danger" id="burn-btn">Burn this room</button>
+      </div>
 
       <p class="room-exit"><a class="btn btn-quiet" href="index.html">Exit room</a></p>
 
@@ -110,12 +119,49 @@
       saved.messages = saved.messages || [];
       save();
     }
-    function save() { localStorage.setItem(storeKey, JSON.stringify(saved)); }
+    // Saving must never be able to kill the room: if this browser's
+    // storage is full or blocked (private mode does this), the write is
+    // allowed to fail — the room keeps working from memory for as long
+    // as the page stays open, and the visitor is told, once, honestly.
+    var storageFailed = false;
+    function save() {
+      try { localStorage.setItem(storeKey, JSON.stringify(saved)); }
+      catch (e) {
+        if (!storageFailed) {
+          storageFailed = true;
+          var sn = document.getElementById('storage-note');
+          sn.textContent = 'This browser won\u2019t let Campfire save (private mode, or storage is full). The room still works while you stay on this page — but a refresh would lose it.';
+          sn.classList.remove('hidden');
+        }
+      }
+    }
+
+    // One eraser for both endings — an early burn and a natural burn-out
+    // leave exactly the same nothing behind: no messages, no creator
+    // memory, no join code. "When the fire dies, it's gone" is literal.
+    function eraseRoomData() {
+      try { localStorage.removeItem(storeKey); } catch (e) {}
+      try {
+        var cr = JSON.parse(localStorage.getItem('campfire-created') || '{}');
+        delete cr[roomId];
+        localStorage.setItem('campfire-created', JSON.stringify(cr));
+        if (roomCode) {
+          var rg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
+          delete rg[roomCode];
+          localStorage.setItem('campfire-codes', JSON.stringify(rg));
+        }
+      } catch (e) {}
+    }
 
     var burnsAt = saved.litAt + 8 * 60 * 60 * 1000;
+    var gone = false;
     function tick() {
       var left = burnsAt - Date.now();
-      if (left <= 0) { showGone(); return; }
+      if (left <= 0) {
+        if (!gone) { gone = true; eraseRoomData(); }   // expiry erases, for real
+        showGone();
+        return;
+      }
       var h = Math.floor(left / 3600000), m = Math.floor(left / 60000) % 60, s = Math.floor(left / 1000) % 60;
       document.getElementById('countdown').textContent =
         [h, m, s].map(function (n) { return String(n).padStart(2, '0'); }).join(':');
@@ -181,6 +227,15 @@
     }
     render();
 
+    // Choosing a file says what was chosen, right there — the picker is
+    // themed, so this line is its voice.
+    document.getElementById('my-file').addEventListener('change', function () {
+      var f = this.files[0];
+      document.getElementById('file-note').textContent = f
+        ? '\u{1F4CE} ' + f.name + ' — it will ride with your next post.'
+        : '';
+    });
+
     document.getElementById('post-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var text = document.getElementById('my-text').value.trim();
@@ -209,6 +264,11 @@
       if (prev && prev.name === myDisplayName() && prev.text === text &&
           (prev.fileName || null) === (file ? file.name : null) && nowMs - prev.at < 2000) return;
 
+      // Preview ceiling: a room keeps at most its last 500 messages in
+      // this browser, so one fire can never grow until storage chokes.
+      if (saved.messages.length >= 500) {
+        saved.messages.splice(0, saved.messages.length - 499);
+      }
       saved.messages.push({
         name: myDisplayName(),
         text: text,
@@ -269,23 +329,27 @@
     }
 
     // ---------- Burn (creator only: the key must be in the link) ----------
+    // Burning is forever, so it asks twice: the first tap arms the match
+    // for four seconds, the second tap strikes it. It also lives in its
+    // own zone, far from Post — no pocket-dial cremations.
     if (creatorKey) {
+      document.getElementById('danger-zone').classList.remove('hidden');
       var burnBtn = document.getElementById('burn-btn');
-      burnBtn.classList.remove('hidden');
+      var armed = false, armTimer = null;
       burnBtn.addEventListener('click', function () {
-        localStorage.removeItem(storeKey);
-        // Forget this browser's creator memory and join-code entry too:
-        // a burned room leaves no doors behind.
-        try {
-          var cr = JSON.parse(localStorage.getItem('campfire-created') || '{}');
-          delete cr[roomId];
-          localStorage.setItem('campfire-created', JSON.stringify(cr));
-          if (roomCode) {
-            var rg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
-            delete rg[roomCode];
-            localStorage.setItem('campfire-codes', JSON.stringify(rg));
-          }
-        } catch (e) {}
+        if (!armed) {
+          armed = true;
+          burnBtn.textContent = 'Tap again to burn it — no way back';
+          burnBtn.classList.add('armed');
+          armTimer = setTimeout(function () {
+            armed = false;
+            burnBtn.textContent = 'Burn this room';
+            burnBtn.classList.remove('armed');
+          }, 4000);
+          return;
+        }
+        clearTimeout(armTimer);
+        eraseRoomData();
         showGone();
       });
     }

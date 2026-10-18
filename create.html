@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Light a room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="stylesheet" href="room.css?v=7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <meta name="theme-color" content="#17110c">
+  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="room.css?v=8">
 </head>
 <body>
 
@@ -44,7 +46,7 @@
       <p class="dim">Invite link — for your guests. It opens the room, and
         nothing more. No raw link to read or copy by hand; the button
         carries it:</p>
-      <p><button type="button" class="btn" id="copy-invite">Copy invite link</button></p>
+      <p><button type="button" class="btn btn-quiet" id="copy-invite">Copy invite link</button></p>
       <p class="dim">Your creator key travels inside your Enter link. Once
         you're inside the room, you'll find the button to copy your creator
         link there — keep it only with you, like a house key.</p>
@@ -57,6 +59,10 @@
   <script src="room.js?v=6"></script>
   <script>
     // Create flow: build an unguessable room address + a creator key.
+    // The current room's values live here, so the copy handlers below can
+    // be registered exactly once and still copy the newest room.
+    var currentCode = '';
+    var currentGuestUrl = '';
     document.getElementById('create-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var slug = makeSlug(12);        // the room's address — long enough that nobody can guess it
@@ -101,9 +107,9 @@
       document.getElementById('created').classList.remove('hidden');
 
       // The code itself is the copy button: tap it, the number is yours.
-      document.getElementById('room-code').addEventListener('click', function () {
-        copyText(code, this);
-      });
+      // (Its handler is registered once, below the submit handler.)
+      currentCode = code;
+      currentGuestUrl = guestUrl;
 
       // Remember this code in this browser, so the home page's join box can
       // find the room. (Cross-browser code lookup arrives with the server.)
@@ -122,9 +128,16 @@
         localStorage.setItem('campfire-created', JSON.stringify(mine));
       } catch (err) {}
 
-      document.getElementById('copy-invite').addEventListener('click', function () {
-        copyText(guestUrl, this);
-      });
+    });
+
+    // Copy handlers are registered ONCE, here — never inside the submit
+    // handler, where every lit room would stack another listener carrying
+    // a stale room's data. They read the current room's values instead.
+    document.getElementById('room-code').addEventListener('click', function () {
+      if (currentCode) copyText(currentCode, this);
+    });
+    document.getElementById('copy-invite').addEventListener('click', function () {
+      if (currentGuestUrl) copyText(currentGuestUrl, this);
     });
 
     // Copy text with a fallback for older browsers, and say so on the button.
