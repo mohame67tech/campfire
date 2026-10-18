@@ -34,6 +34,119 @@ a { transition: color 0.2s ease; }
   html { scroll-behavior: auto; }
 }
 
+/* ---------- Hero ---------- */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 4rem;
+  background: radial-gradient(ellipse 60% 45% at 50% 88%, rgba(255, 140, 66, 0.22), transparent 70%);
+}
+
+.kicker {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  color: var(--ember-soft);
+}
+
+.wordmark {
+  font-size: clamp(3.2rem, 13vw, 9rem);
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  color: var(--text);
+  text-shadow: 0 0 34px rgba(255, 140, 66, 0.45);
+  margin: 1rem 0 1.25rem;
+}
+
+.promise {
+  font-size: clamp(1.1rem, 2.6vw, 1.45rem);
+  color: var(--text-dim);
+}
+
+.hero-actions { margin-top: 2.25rem; }
+
+.btn {
+  display: inline-block;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #17110c;
+  background: var(--ember);
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  margin: 0 0.4rem;
+}
+.btn-quiet {
+  background: transparent;
+  color: var(--ember-soft);
+  border: 1px solid var(--line);
+}
+
+/* ---------- Sections ---------- */
+main { max-width: 1020px; margin: 0 auto; padding: 0 1.5rem; }
+section { padding: 3.5rem 0 1rem; }
+
+h2 {
+  font-size: 1.9rem;
+  margin-bottom: 1.75rem;
+  color: var(--text);
+}
+
+/* ---------- Four fires: cards ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 1.1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.6rem 1.4rem;
+}
+
+.glyph {
+  font-size: 1.5rem;
+  color: var(--ember);
+  margin-bottom: 0.8rem;
+}
+
+.card h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+.card p  { color: var(--text-dim); font-size: 0.97rem; }
+
+/* ---------- How it works: numbered steps ---------- */
+.steps { list-style: none; }
+.steps li {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.step-num {
+  font-size: 1.6rem;
+  color: var(--ember);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  width: 3rem; height: 3rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.steps h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+.steps p  { color: var(--text-dim); }
+
+/* ---------- Feedback + footer ---------- */
+.feedback p { color: var(--text-dim); max-width: 34rem; }
+
+footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  padding: 4rem 1.5rem 3rem;
+}
+
 /* ---------- The flame cursor ---------- */
 html.has-flame-cursor, html.has-flame-cursor * { cursor: none !important; }
 
