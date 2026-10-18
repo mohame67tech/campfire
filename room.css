@@ -2,6 +2,19 @@
 
 .narrow { max-width: 640px; margin: 0 auto; padding: 3rem 1.5rem; }
 
+main { animation: rise 0.4s ease both; }
+.panel { animation: rise 0.35s ease both; }
+.msg.fresh { animation: rise 0.3s ease both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main, .panel, .msg.fresh { animation: none; }
+}
+
 .page-title { font-size: 2.2rem; margin: 0.75rem 0 1rem; }
 .dim { color: var(--text-dim); }
 .hidden { display: none; }

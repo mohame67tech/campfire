@@ -5,7 +5,9 @@ gather round, talk and swap files. When the fire dies, it's gone.
 
 ## What it is
 
-- **Created rooms** (events, gaming lobbies) live **24 hours**, then burn out.
+- **Created rooms** (events, gaming lobbies) live **8 hours** in the current
+  build (a for-now test value — the launch value gets re-decided later),
+  then burn out.
   The person who lit a room can **burn it early**.
 - **Two fires always burn:** the *Kindness Fire* (leave something warm for the
   next stranger) and the *Quiet-Hand Room* (ask anonymously, nobody raises
@@ -23,7 +25,7 @@ gather round, talk and swap files. When the fire dies, it's gone.
   - [x] Landing page (`index.html` + `style.css`)
   - [x] Create-a-room page + room screen — front-end preview (`create.html`,
         `room.html`, `room.js`, `room.css`): unguessable room links, creator
-        key in the link's # fragment, 24-hour countdown, burn-the-room,
+        key in the link's # fragment, 8-hour countdown, burn-the-room,
         "this fire has gone out" screen. Messages are browser-local for now.
   - [ ] Room server — makes messages and files travel between visitors
   - [ ] 24-hour expiry + burn-the-room

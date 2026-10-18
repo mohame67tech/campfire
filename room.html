@@ -15,7 +15,7 @@
     <div id="room-view">
       <p class="kicker" id="room-kind">THE CAMPFIRE</p>
       <h1 class="page-title" id="room-name">A room by the fire</h1>
-      <p class="dim">This fire burns out in <strong id="countdown">24:00:00</strong></p>
+      <p class="dim">This fire burns out in <strong id="countdown">08:00:00</strong></p>
 
       <div id="messages" class="messages">
         <p class="empty" id="empty-note">This fire is lit. Be the first to speak.</p>
@@ -46,7 +46,7 @@
     <!-- ============ THE FIRE HAS GONE OUT ============ -->
     <div id="gone-view" class="hidden">
       <h1 class="page-title">This fire has gone out.</h1>
-      <p class="dim">The room burned its 24 hours, or its creator burned it early.
+      <p class="dim">The room burned its 8 hours, or its creator burned it early.
         Either way, the talk and the files went with the smoke — that was the deal.</p>
       <p><a class="btn" href="index.html">Back to the Campfire</a></p>
     </div>
@@ -66,14 +66,14 @@
     if (roomName) document.getElementById('room-name').textContent = roomName;
     document.getElementById('room-kind').textContent = roomKind.toUpperCase();
 
-    // ---------- Preview expiry: 24 hours from first opening, kept in this browser ----------
+    // ---------- Preview expiry: 8 hours from first opening, kept in this browser ----------
     var storeKey = 'campfire-room-' + roomId;
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch (e) { saved = {}; }
     if (!saved.litAt) { saved.litAt = Date.now(); saved.messages = []; save(); }
     function save() { localStorage.setItem(storeKey, JSON.stringify(saved)); }
 
-    var burnsAt = saved.litAt + 24 * 60 * 60 * 1000;
+    var burnsAt = saved.litAt + 8 * 60 * 60 * 1000;
     function tick() {
       var left = burnsAt - Date.now();
       if (left <= 0) { showGone(); return; }
@@ -142,6 +142,8 @@
         at: Date.now()
       });
       save(); render();
+      var last = messagesEl.lastElementChild;
+      if (last) last.classList.add('fresh');
       document.getElementById('my-text').value = '';
       document.getElementById('my-file').value = '';
       document.getElementById('file-note').textContent = '';
