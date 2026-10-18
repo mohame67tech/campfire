@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=7">
-  <link rel="stylesheet" href="room.css?v=5">
+  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="room.css?v=6">
 </head>
 <body>
 
@@ -16,7 +16,10 @@
       <p class="kicker" id="room-kind">THE CAMPFIRE</p>
       <h1 class="page-title" id="room-name">A room by the fire</h1>
       <p class="dim">This fire burns out in <strong id="countdown">08:00:00</strong></p>
-      <p><button type="button" class="btn btn-quiet" id="invite-btn">Copy invite link</button></p>
+      <div class="room-tools">
+        <span class="code-chip hidden" id="code-chip">Room code&nbsp;<strong id="room-code"></strong></span>
+        <button type="button" class="btn btn-quiet btn-small" id="invite-btn">Copy invite link</button>
+      </div>
 
       <div id="messages" class="messages">
         <p class="empty" id="empty-note">This fire is lit. Be the first to speak.</p>
@@ -39,6 +42,8 @@
         <button type="submit" class="btn">Post</button>
         <button type="button" class="btn btn-quiet hidden" id="burn-btn">Burn this room</button>
       </form>
+
+      <p class="room-exit"><a class="btn btn-quiet" href="index.html">Exit room</a></p>
 
       <p class="fineprint">Preview build — in this version, messages live only
         in this browser. The server piece makes them travel between visitors.</p>
@@ -66,6 +71,14 @@
 
     if (roomName) document.getElementById('room-name').textContent = roomName;
     document.getElementById('room-kind').textContent = roomKind.toUpperCase();
+
+    // The room code, when this room was lit with one — shown as a chip so
+    // anyone by the fire can read it aloud to someone joining.
+    var roomCode = params.get('c') || '';
+    if (roomCode) {
+      document.getElementById('room-code').textContent = roomCode;
+      document.getElementById('code-chip').classList.remove('hidden');
+    }
 
     // ---------- Preview expiry: 8 hours from first opening, kept in this browser ----------
     var storeKey = 'campfire-room-' + roomId;

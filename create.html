@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Light a room — The Campfire</title>
-  <link rel="stylesheet" href="style.css?v=7">
-  <link rel="stylesheet" href="room.css?v=5">
+  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="room.css?v=6">
 </head>
 <body>
 
@@ -16,6 +16,7 @@
       no sign-up, no accounts. You will get two things: the <strong>link</strong>
       to share, and a <strong>creator key</strong> that is yours alone. The key
       is the match that can burn the room early — keep it safe.</p>
+    <p><a href="index.html" class="dim">← Back to the Campfire</a></p>
 
     <form id="create-form" class="panel">
       <label>
@@ -36,15 +37,15 @@
 
     <div id="created" class="panel hidden">
       <h3>Your fire is lit.</h3>
-      <p class="dim">Invite link — share this one with your guests. It opens
-        the room, and nothing more:</p>
-      <p><a id="room-link" href="#"></a></p>
+      <p><a class="btn" id="enter-room" href="#">Enter your room</a></p>
+      <p class="dim">Room code: <strong id="room-code"></strong> — guests can
+        join with this code from the Campfire home page.</p>
+      <p class="dim">Invite link — for your guests. It opens the room, and
+        nothing more. No raw link to read or copy by hand; the button
+        carries it:</p>
       <p><button type="button" class="btn" id="copy-invite">Copy invite link</button></p>
-      <p class="dim">Your creator link — this one carries your creator key
-        (after the #) and can burn the room. Keep it only with you, like a
-        house key. Open the room through it whenever you want your Burn
-        button:</p>
-      <p><code id="creator-link"></code></p>
+      <p class="dim">Your creator link carries your creator key and can burn
+        the room. Keep it only with you, like a house key:</p>
       <p><button type="button" class="btn btn-quiet" id="copy-creator">Copy creator link</button></p>
     </div>
 
@@ -62,6 +63,13 @@
       var name = document.getElementById('room-name').value.trim();
       var kind = document.getElementById('room-kind').value;
 
+      // The friendly front step: a 5-digit room code a guest can type.
+      // Convenience by the founder's ruling — the long link stays the lock.
+      var codeBytes = new Uint8Array(5);
+      window.crypto.getRandomValues(codeBytes);
+      var code = '';
+      for (var ci = 0; ci < 5; ci++) code += String(codeBytes[ci] % 10);
+
       // Two links, made by the page so nobody ever edits a link by hand:
       // the invite link (no key — safe to share with anyone) and the creator
       // link (the key rides in the # fragment, which browsers never send to
@@ -74,15 +82,22 @@
         .replace(/create\.html$/, 'room.html');
       var base = roomPage + '?r=' + slug +
                  '&n=' + encodeURIComponent(name) +
-                 '&k=' + encodeURIComponent(kind);
+                 '&k=' + encodeURIComponent(kind) +
+                 '&c=' + code;
       var guestUrl = base;
       var creatorUrl = base + '#key=' + key;
 
-      var link = document.getElementById('room-link');
-      link.href = guestUrl;
-      link.textContent = guestUrl;
-      document.getElementById('creator-link').textContent = creatorUrl;
+      document.getElementById('enter-room').href = creatorUrl;
+      document.getElementById('room-code').textContent = code;
       document.getElementById('created').classList.remove('hidden');
+
+      // Remember this code in this browser, so the home page's join box can
+      // find the room. (Cross-browser code lookup arrives with the server.)
+      try {
+        var reg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
+        reg[code] = guestUrl;
+        localStorage.setItem('campfire-codes', JSON.stringify(reg));
+      } catch (err) {}
 
       document.getElementById('copy-invite').addEventListener('click', function () {
         copyText(guestUrl, this);

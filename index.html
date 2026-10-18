@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Campfire — a chat room that asks for nothing</title>
   <meta name="description" content="No sign-up. No accounts. Share a link, gather round, talk and swap files. When the fire dies, it's gone.">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -22,6 +22,16 @@
       <a class="btn" href="create.html">Light a room</a>
       <a class="btn btn-quiet" href="#rooms">See the fires</a>
     </p>
+
+    <form class="join-box" id="join-form">
+      <label for="join-code">Have a room code?</label>
+      <div class="join-row">
+        <input type="text" id="join-code" inputmode="numeric" autocomplete="off"
+               maxlength="5" placeholder="5-digit code">
+        <button type="submit" class="btn">Join</button>
+      </div>
+      <p class="join-note hidden" id="join-note">No room found with that code.</p>
+    </form>
   </header>
 
   <!-- ============ THE FOUR FIRES ============ -->
@@ -76,8 +86,9 @@
         <li>
           <span class="step-num">2</span>
           <div>
-            <h3>Share the link</h3>
-            <p>Whoever has it is in. Talk, post, share files up to 15 MB.</p>
+            <h3>Share the link — or the code</h3>
+            <p>Whoever has the link is in, or they type the room's 5-digit
+               code on this page. Talk, post, share files up to 15 MB.</p>
           </div>
         </li>
         <li>
@@ -105,5 +116,22 @@
   </footer>
 
   <script src="room.js?v=6"></script>
+  <script>
+    // Join by room code. In this preview the home page can find rooms this
+    // browser created (they are remembered here); the server piece turns
+    // this same box into the front desk for everyone's codes.
+    document.getElementById('join-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code = document.getElementById('join-code').value.trim();
+      var note = document.getElementById('join-note');
+      var url = null;
+      try {
+        var reg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
+        url = reg[code] || null;
+      } catch (err) {}
+      if (url) { window.location.href = url; return; }
+      note.classList.remove('hidden');
+    });
+  </script>
 </body>
 </html>

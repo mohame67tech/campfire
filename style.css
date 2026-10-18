@@ -147,6 +147,36 @@ footer {
   padding: 4rem 1.5rem 3rem;
 }
 
+/* ---------- Join by code (home page) ---------- */
+.hidden { display: none; }
+
+.join-box {
+  max-width: 430px;
+  margin: 2.5rem auto 0;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  text-align: left;
+}
+.join-box label {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.join-row { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+.join-row input {
+  flex: 1; min-width: 0;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+}
+.join-note { color: var(--ember-soft); font-size: 0.9rem; margin-top: 0.7rem; }
+
 /* ---------- The flame cursor ---------- */
 html.has-flame-cursor, html.has-flame-cursor * { cursor: none !important; }
 

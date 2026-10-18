@@ -81,3 +81,22 @@ main { animation: rise 0.4s ease both; }
   font-style: italic;
   margin-top: 2rem;
 }
+
+/* ---------- Inside the room: tools row, code chip, exit ---------- */
+.room-tools {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 0.5rem;
+}
+.code-chip {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.85rem;
+  color: var(--ember-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+}
+.btn-small { padding: 0.4rem 1rem; font-size: 0.8rem; }
+.room-exit { margin-top: 1rem; }
