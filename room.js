@@ -1,5 +1,46 @@
 /* Shared helpers for the Campfire pages. */
 
+/* ---------- The flame cursor (v3, layered) ----------
+   Three nested layers, each owning exactly ONE job, so no two effects
+   can ever fight over the same property:
+     .flame-cursor -> position only (moved by this script)
+     .flame-inner  -> the "hot" flare only (a CSS scale)
+     .flame-core   -> the flicker only (a CSS animation)
+   The system arrow hides on our site (mouse devices only) and the
+   flame follows the hand with a slight lag, dimming and brightening. */
+(function () {
+  var fine = window.matchMedia('(pointer: fine)').matches;
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!fine || calm) return;   // touchscreens and calm-motion users keep the normal cursor
+
+  var flame = document.createElement('div');
+  flame.className = 'flame-cursor';
+  flame.innerHTML = '<div class="flame-inner"><div class="flame-glow"></div><div class="flame-core"></div></div>';
+  document.documentElement.appendChild(flame);
+  document.documentElement.classList.add('has-flame-cursor');
+
+  var x = -100, y = -100, tx = -100, ty = -100, started = false;
+  window.addEventListener('pointermove', function (e) {
+    tx = e.clientX; ty = e.clientY;
+    if (!started) { x = tx; y = ty; started = true; flame.classList.add('lit'); }
+  }, { passive: true });
+
+  (function follow() {
+    x += (tx - x) * 0.45;      // the lag: the flame chases the hand, never glued to it
+    y += (ty - y) * 0.45;
+    flame.style.transform = 'translate3d(' + (x - 13) + 'px,' + (y - 24) + 'px,0)';
+    requestAnimationFrame(follow);
+  })();
+
+  // Burn stronger over anything clickable.
+  document.addEventListener('mouseover', function (e) {
+    var hot = e.target.closest ? e.target.closest('a, button, input, select, textarea, label') : null;
+    flame.classList.toggle('hot', !!hot);
+  });
+})();
+
+/* Shared helpers for the Campfire pages. */
+
 /* ---------- The flame cursor ----------
    Not a picture of a fire: a living flame rendered by the page.
    The system arrow hides on our site (only when a real mouse exists)
