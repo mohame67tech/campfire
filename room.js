@@ -14,18 +14,23 @@
   var flame = document.createElement('div');
   flame.className = 'flame-cursor';
   flame.innerHTML = '<div class="flame-glow"></div><div class="flame-core"></div>';
-  document.body.appendChild(flame);
+  // On <html>, not <body>: a fixed element is framed by the viewport only
+  // if no ancestor traps it — <html> never carries our page animations.
+  document.documentElement.appendChild(flame);
   document.documentElement.classList.add('has-flame-cursor');
 
-  var x = -100, y = -100, tx = -100, ty = -100;
-  document.addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; });
+  var x = -100, y = -100, tx = -100, ty = -100, started = false;
+  document.addEventListener('mousemove', function (e) {
+    tx = e.clientX; ty = e.clientY;
+    if (!started) { x = tx; y = ty; started = true; }   // first move: start on the hand, no long chase
+  });
 
   (function follow() {
     var dx = tx - x;
     x += dx * 0.35;            // the lag: the flame chases the hand, never glued to it
     y += (ty - y) * 0.35;
     var lean = Math.max(-18, Math.min(18, dx * 0.45));   // wind: fast moves tilt the flame
-    flame.style.transform = 'translate(' + (x - 13) + 'px,' + (y - 24) + 'px) rotate(' + lean + 'deg)';
+    flame.style.transform = 'translate3d(' + (x - 13) + 'px,' + (y - 24) + 'px,0) rotate(' + lean + 'deg)';
     requestAnimationFrame(follow);
   })();
 

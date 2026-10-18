@@ -21,15 +21,9 @@ body {
   color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.6;
-  animation: pageIn 0.45s ease both;
   transition: opacity 0.18s ease;
 }
 body.leaving { opacity: 0; }
-
-@keyframes pageIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
 
 a { transition: color 0.2s ease; }
 .btn { transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
