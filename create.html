@@ -66,7 +66,13 @@
       // the invite link (no key — safe to share with anyone) and the creator
       // link (the key rides in the # fragment, which browsers never send to
       // a server, so it stays between the creator and their browser).
-      var base = 'room.html?r=' + slug +
+      // Absolute address: a copied link must work pasted ANYWHERE — a chat
+      // app, another browser — not only when clicked from this page. So the
+      // link is built from this page's own full address, with create.html
+      // swapped for room.html.
+      var roomPage = window.location.href.split('#')[0].split('?')[0]
+        .replace(/create\.html$/, 'room.html');
+      var base = roomPage + '?r=' + slug +
                  '&n=' + encodeURIComponent(name) +
                  '&k=' + encodeURIComponent(kind);
       var guestUrl = base;
