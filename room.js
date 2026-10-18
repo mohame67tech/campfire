@@ -1,5 +1,41 @@
 /* Shared helpers for the Campfire pages. */
 
+/* ---------- The flame cursor ----------
+   Not a picture of a fire: a living flame rendered by the page.
+   The system arrow hides on our site (only when a real mouse exists)
+   and this flame follows the hand with a slight lag, flickering and
+   dimming like a real flame, leaning with the speed of the movement.
+   Near anything clickable, it burns stronger. */
+(function () {
+  var fine = window.matchMedia('(pointer: fine)').matches;
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!fine || calm) return;   // touchscreens and calm-motion users keep the normal cursor
+
+  var flame = document.createElement('div');
+  flame.className = 'flame-cursor';
+  flame.innerHTML = '<div class="flame-glow"></div><div class="flame-core"></div>';
+  document.body.appendChild(flame);
+  document.documentElement.classList.add('has-flame-cursor');
+
+  var x = -100, y = -100, tx = -100, ty = -100;
+  document.addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; });
+
+  (function follow() {
+    var dx = tx - x;
+    x += dx * 0.35;            // the lag: the flame chases the hand, never glued to it
+    y += (ty - y) * 0.35;
+    var lean = Math.max(-18, Math.min(18, dx * 0.45));   // wind: fast moves tilt the flame
+    flame.style.transform = 'translate(' + (x - 13) + 'px,' + (y - 24) + 'px) rotate(' + lean + 'deg)';
+    requestAnimationFrame(follow);
+  })();
+
+  // Burn stronger over anything clickable.
+  document.addEventListener('mouseover', function (e) {
+    var hot = e.target.closest ? e.target.closest('a, button, input, select, textarea, label') : null;
+    flame.classList.toggle('hot', !!hot);
+  });
+})();
+
 // Gentle page transitions: when a link leads to another Campfire page,
 // fade this page out first instead of blinking away. Pages fade/rise
 // back in through the CSS animations.

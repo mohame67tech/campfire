@@ -40,6 +40,50 @@ a { transition: color 0.2s ease; }
   html { scroll-behavior: auto; }
 }
 
+/* ---------- The flame cursor ---------- */
+html.has-flame-cursor, html.has-flame-cursor * { cursor: none !important; }
+
+.flame-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 26px; height: 26px;
+  pointer-events: none;
+  z-index: 9999;
+  transform-origin: 50% 92%;   /* rooted at the flame's base, like a match */
+  transition: scale 0.18s ease;
+}
+
+.flame-glow {
+  position: absolute; inset: -16px;
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.5) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: glowPulse 0.9s ease-in-out infinite alternate;
+}
+
+.flame-core {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, #ff5e3a 0%, #ff8c42 45%, #ffc46b 75%, #fff3c4 100%);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  transform-origin: 50% 92%;
+  animation: flick 0.32s ease-in-out infinite alternate;
+}
+
+/* The flicker: stretch, sway, and dim — fire never sits still. */
+@keyframes flick {
+  from { transform: scale(1, 1) skewX(-2deg);       filter: brightness(0.85); }
+  to   { transform: scale(0.94, 1.13) skewX(2.5deg); filter: brightness(1.15); }
+}
+
+@keyframes glowPulse {
+  from { opacity: 0.45; }
+  to   { opacity: 0.95; }
+}
+
+/* Over something clickable: the fire finds fuel. */
+.flame-cursor.hot { scale: 1.5; }
+.flame-cursor.hot .flame-core { animation-duration: 0.16s; }
+.flame-cursor.hot .flame-glow { animation-duration: 0.45s; }
+
 /* ---------- Hero ---------- */
 .hero {
   text-align: center;
