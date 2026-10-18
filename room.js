@@ -1,5 +1,43 @@
 /* Shared helpers for the Campfire pages. */
 
+/* ---------- The flame cursor (v4, event-driven) ----------
+   The flame is positioned INSIDE the pointermove handler itself, so
+   it can never be anywhere except on the hand — no animation loop,
+   no lag state, nothing that can stall or drift at any frame rate.
+   A 90ms CSS transition smooths the steps. Layers:
+     .flame-cursor -> position only (set by this script)
+     .flame-inner  -> the "hot" flare only (a CSS scale)
+     .flame-core   -> the flicker only (a CSS animation) */
+(function () {
+  var fine = window.matchMedia('(pointer: fine)').matches;
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!fine || calm) return;   // touchscreens and calm-motion users keep the normal cursor
+
+  // Hide the system arrow. Injected by this script so the rule exists
+  // exactly when (and only when) the flame itself is alive.
+  var style = document.createElement('style');
+  style.textContent = '* { cursor: none !important; }';
+  document.head.appendChild(style);
+
+  var flame = document.createElement('div');
+  flame.className = 'flame-cursor';
+  flame.innerHTML = '<div class="flame-inner"><div class="flame-glow"></div><div class="flame-core"></div></div>';
+  document.documentElement.appendChild(flame);
+
+  window.addEventListener('pointermove', function (e) {
+    flame.style.transform = 'translate3d(' + (e.clientX - 13) + 'px,' + (e.clientY - 24) + 'px,0)';
+    flame.classList.add('lit');
+  }, { passive: true });
+
+  // Burn stronger over anything clickable.
+  document.addEventListener('mouseover', function (e) {
+    var hot = e.target.closest ? e.target.closest('a, button, input, select, textarea, label') : null;
+    flame.classList.toggle('hot', !!hot);
+  });
+})();
+
+/* Shared helpers for the Campfire pages. */
+
 /* ---------- The flame cursor (v3, layered) ----------
    Three nested layers, each owning exactly ONE job, so no two effects
    can ever fight over the same property:
