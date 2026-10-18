@@ -71,6 +71,16 @@
     // The creator key rides in the # fragment (never sent to any server).
     var creatorKey = (window.location.hash.match(/key=([A-Za-z0-9]+)/) || [])[1] || null;
 
+    // The browser that lit this room remembers its key (kept only in this
+    // browser), so the creator keeps their Burn button and creator-link
+    // copy even when they return through the plain invite link.
+    if (!creatorKey) {
+      try {
+        var createdRooms = JSON.parse(localStorage.getItem('campfire-created') || '{}');
+        if (createdRooms[roomId]) creatorKey = createdRooms[roomId];
+      } catch (e) {}
+    }
+
     if (roomName) document.getElementById('room-name').textContent = roomName;
     document.getElementById('room-kind').textContent = roomKind.toUpperCase();
 
@@ -86,7 +96,16 @@
     var storeKey = 'campfire-room-' + roomId;
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch (e) { saved = {}; }
-    if (!saved.litAt) { saved.litAt = Date.now(); saved.messages = []; save(); }
+    if (!saved.litAt) {
+      // One clock for the whole room: the fire's life runs from when the
+      // creator lit it (the t carried in the link), not from each browser's
+      // first visit — every visitor sees the same countdown, and a link
+      // first opened after the 8 hours finds the fire already out.
+      var litParam = parseInt(params.get('t') || '', 10);
+      saved.litAt = (litParam && litParam <= Date.now()) ? litParam : Date.now();
+      saved.messages = saved.messages || [];
+      save();
+    }
     function save() { localStorage.setItem(storeKey, JSON.stringify(saved)); }
 
     var burnsAt = saved.litAt + 8 * 60 * 60 * 1000;
@@ -179,11 +198,18 @@
         save();
         lockIdentity();
       }
+      // Double-tap guard: the identical post twice within 2 seconds is
+      // one post, however eager the thumb.
+      var nowMs = Date.now();
+      var prev = saved.messages[saved.messages.length - 1];
+      if (prev && prev.name === myDisplayName() && prev.text === text &&
+          (prev.fileName || null) === (file ? file.name : null) && nowMs - prev.at < 2000) return;
+
       saved.messages.push({
         name: myDisplayName(),
         text: text,
         fileName: file ? file.name : null,
-        at: Date.now()
+        at: nowMs
       });
       save(); render();
       var last = messagesEl.lastElementChild;
@@ -229,7 +255,12 @@
       var ccBtn = document.getElementById('copy-creator-btn');
       ccBtn.classList.remove('hidden');
       ccBtn.addEventListener('click', function () {
-        copyToClipboard(window.location.href, this, 'Copy failed — copy the address bar');
+        // Build the creator link from the address + the key, so it is whole
+        // even when the creator arrived by the invite link and this browser
+        // supplied the key from its own memory.
+        var mine = window.location.origin + window.location.pathname +
+                   window.location.search + '#key=' + creatorKey;
+        copyToClipboard(mine, this, 'Copy failed — copy the address bar');
       });
     }
 
@@ -239,9 +270,36 @@
       burnBtn.classList.remove('hidden');
       burnBtn.addEventListener('click', function () {
         localStorage.removeItem(storeKey);
+        // Forget this browser's creator memory and join-code entry too:
+        // a burned room leaves no doors behind.
+        try {
+          var cr = JSON.parse(localStorage.getItem('campfire-created') || '{}');
+          delete cr[roomId];
+          localStorage.setItem('campfire-created', JSON.stringify(cr));
+          if (roomCode) {
+            var rg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
+            delete rg[roomCode];
+            localStorage.setItem('campfire-codes', JSON.stringify(rg));
+          }
+        } catch (e) {}
         showGone();
       });
     }
+
+    // Other tabs of this browser stay in step: a post, a name being set, or
+    // a burn in one tab is true in every tab a moment later — and a burned
+    // room goes out everywhere in this browser at once.
+    window.addEventListener('storage', function (e) {
+      if (e.key !== storeKey) return;
+      if (e.newValue === null) { showGone(); return; }
+      try {
+        saved = JSON.parse(e.newValue) || {};
+        burnsAt = (saved.litAt || Date.now()) + 8 * 60 * 60 * 1000;
+        render();
+        lockIdentity();
+        tick();
+      } catch (err) {}
+    });
 
     function showGone() {
       document.getElementById('room-view').classList.add('hidden');

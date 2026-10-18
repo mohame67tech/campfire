@@ -66,10 +66,17 @@
 
       // The friendly front step: a 5-digit room code a guest can type.
       // Convenience by the founder's ruling — the long link stays the lock.
-      var codeBytes = new Uint8Array(5);
-      window.crypto.getRandomValues(codeBytes);
+      // Mint until the code is unused in this browser's registry, so two
+      // rooms here never share a code and confuse the join box.
+      var existingCodes = {};
+      try { existingCodes = JSON.parse(localStorage.getItem('campfire-codes') || '{}'); } catch (e) {}
       var code = '';
-      for (var ci = 0; ci < 5; ci++) code += String(codeBytes[ci] % 10);
+      do {
+        var codeBytes = new Uint8Array(5);
+        window.crypto.getRandomValues(codeBytes);
+        code = '';
+        for (var ci = 0; ci < 5; ci++) code += String(codeBytes[ci] % 10);
+      } while (existingCodes[code]);
 
       // Two links, made by the page so nobody ever edits a link by hand:
       // the invite link (no key — safe to share with anyone) and the creator
@@ -84,7 +91,8 @@
       var base = roomPage + '?r=' + slug +
                  '&n=' + encodeURIComponent(name) +
                  '&k=' + encodeURIComponent(kind) +
-                 '&c=' + code;
+                 '&c=' + code +
+                 '&t=' + Date.now();   // lit-at: one shared clock for the room's life
       var guestUrl = base;
       var creatorUrl = base + '#key=' + key;
 
@@ -98,6 +106,15 @@
         var reg = JSON.parse(localStorage.getItem('campfire-codes') || '{}');
         reg[code] = guestUrl;
         localStorage.setItem('campfire-codes', JSON.stringify(reg));
+      } catch (err) {}
+
+      // This browser remembers it lit this room (address → key, kept only
+      // in this browser), so the creator keeps their Burn button even when
+      // they come back through the plain invite link.
+      try {
+        var mine = JSON.parse(localStorage.getItem('campfire-created') || '{}');
+        mine[slug] = key;
+        localStorage.setItem('campfire-created', JSON.stringify(mine));
       } catch (err) {}
 
       document.getElementById('copy-invite').addEventListener('click', function () {
